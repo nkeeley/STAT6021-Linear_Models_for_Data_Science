@@ -1,0 +1,42 @@
+---
+title: "Homework 3, Question 3"
+author: "Nicholas Keeley"
+date: "8/6/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Question 3.a
+
+*Write down the estimated multinomial logistic regression models associated with this analysis.*
+
+log(prob_preterm/prob_fullterm) = 5.475147 - 0.06541919\*X1 (nutrition) + 2.957028\*X2 (less20) +  2.059662\*X3 (greater30) + 2.042900\*X4 (alcohol) + 2.452362\*X5 (smoking)
+
+log(prob_intermediate/prob_fullterm) = 3.958370 - 0.04644903\*X1 (nutrition) + 2.913475\*X2 (less20) +  1.887550\*X3 (greater30) + 1.067001\*X4 (alcohol) + 2.230492\*X5 (smoking)
+
+## Question 3.b
+
+*Calculate the Wald test statistics associated with the predictor alcohol, and find the corresponding p-value. What are the conclusions in context at significance level alpha = 0.05? You do not need to apply the Bonferroni method here.*
+
+The Wald statistics for alcohol for the preterm logit is 2.878353 and 1.642737 for the intermediate logit. The P-value for alcohol for the preterm logit is 0.003997572 and 0.1004373 for the intermediate logit. In context, this means that alcohol's effect on the relative risk for preterm pregnancy is significant, but does not contribute significantly to the relative risk for intermediate pregnancy, holding all other variables constant.
+
+```{r 3.b, echo=TRUE}
+z_preterm<-2.042900 / 0.7097461
+z_preterm # 2.878353
+z_intermediate<-1.067001 / 0.6495262
+z_intermediate # 1.642737
+
+qnorm(0.95)
+
+p_preterm<-(1 - pnorm(abs(z_preterm)))*2
+p_preterm # 0.003997572
+p_intermediate<-(1 - pnorm(abs(z_intermediate)))*2
+p_intermediate # 0.1004373
+```
+
+```{r output, echo=FALSE}
+knitr::purl("hw3Q3_keeley.Rmd")
+```

@@ -1,0 +1,139 @@
+---
+title: "Homework 3, Question 2"
+author: "Nicholas Keeley"
+date: "8/4/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Question 2.a
+
+```{r 2.a, echo=FALSE}
+library(MASS)
+data2<-Boston
+# summary(data2$crim)
+#   Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+# 0.00632  0.08204  0.25651  3.61352  3.67708 88.97620 
+data2$crim_factor<-0
+data2$crim_factor[data2$crim >= 1]<-1
+# data2$crim_factor<-as.factor(ifelse(data2$crim>=1, "high crime", "low crime"))
+# is.factor(data2$crim_factor)
+data2$crim_factor<-factor(data2$crim_factor)
+# is.factor(data2$crim_factor)
+levels(data2$crim_factor)<-c("Low Crime", "High Crime")
+# contrasts(data2$crim_factor)
+#attach(data2)
+#detach(data2)
+## Data splitting.
+set.seed(199)
+sample<-sample.int(nrow(data2), floor(.50*nrow(data2)), replace = F) # .5 means half of rows split. Not resampling.
+train<-data2[sample, ]
+test<-data2[-sample, ]# - is a bitwise operator which removes what sample rows you took for training set.
+
+```
+
+*Using the training set, fit a logistic regression model, with your newly created variable as the binary response variable, and with the following predictors: indus, nox, rad, tax, lstat, and medv. Based on the training set, what is the estimated coefficient for tax? How would you interpret this coefficient?*
+
+```{r 2.a.1, echol=FALSE}
+res<-glm(crim_factor~indus + nox + rad + tax + lstat + medv, data=train, family="binomial")
+summary(res) #  -0.004376
+# exp( -0.004376)
+```
+
+The estimated coefficient for tax is -0.004376. This can be interpreted to mean that for a 1 value increase in the tax regressor, the predicted odds of belonging to a high crime town is multiplied by a factor of exp(-0.004376) == 0.9956336, holding all other variables constant.
+
+## Question 2.b
+
+*Construct a 95% confidence interval for the coefficient for tax. Is this confidence interval consistent with the result of the Wald test for the coefficient for tax? Briefly explain.*
+
+```{r 2.b, echo=FALSE}
+confint(res, level=.95)
+```
+
+The 95% confidence interval for the tax regressor is: -0.01224799 <= tax <=  0.002731131. The result for the Wald test for this coefficient was a P-value of 0.23242. These tests are consistent because they both suggest that we cannot reject the null hypothesis that the tax parameter has no effect on the odds of the observation being a high crime town, holding all other variables constant.
+
+## Question 2.c
+
+*Consider using a simpler model, which drops all predictors that have p-value(s) greater than the significance level of 0.05. Carry out an appropriate hypothesis test to see if we should use the simpler model, or the model used in part 2a. Please state the null and alternative hypothesis, report the value of the test statistic, and make a relevant conclusion.*
+
+```{r 2.a.c, echol=FALSE}
+summary(res)
+full_model<-res
+reduced_model<-glm(crim_factor~indus + nox, data=train, family="binomial")
+# Calculate difference in deviances of the full and reduced models.
+1-pchisq(reduced_model$deviance-full_model$deviance,4) # 1.489439e-10
+
+```
+
+In order to drop multiple regressors simultaneously -- specifically rad, tax, lstat, and medv -- I will utilize a partial deviance test. The null hypothesis for this test is that the subset of predictors, B2, has no effect on the odds of being in a high crime town, holding all other variables constant. The alternate hypothesis is that at least one of the predictors in B2 is not zero, holding all other variables constant. The P-value for the difference in deviance between the full and reduced model is exceedingly close to zero (1.489439e-10). Therefore, we can reject the null hypothesis and must subsequently keep B2 since at least one of these variables has a significant effect on the odds of being a high crime town, in the presence of all other variables.
+
+## Question 2.d
+
+*Use your model to predict the probability of a town to be high crime if it has the following features: indus = 10, nox = 0.5, rad = 5, tax = 300, lstat = 12, and medv = 20.*
+
+```{r 2.a.d, echo=TRUE}
+#summary(full_model)
+#summary(reduced_model)
+new.data<-data.frame(indus=10, nox=0.5, rad=5, tax=300, lstat=12, medv=20)
+sth<-predict(full_model, newdata=new.data, type="response") # Yields the probability response at specified x.
+sth # 0.02994905 
+```
+
+The probability of a town with the given metrics being "high crime" is 2.99%.
+
+## Question 2.e
+
+*Validate your model on the testing data by creating an ROC curve. What does your ROC curve tell you?*
+
+```{r 2.a.e, echo=FALSE}
+library(ROCR) # library for ROC curve
+#summary(full_model)
+##predicted high crime precentage for testing data based on training data
+preds<-predict(full_model,newdata=test, type="response")
+##produce the numbers associated with classification table
+rates<-prediction(1-preds, test$crim_factor) # To reverse what weird stuff rstudio does with ROC curve.
+##store the true positive and false postive rates
+roc_result<-performance(rates, measure="tpr", x.measure="fpr")
+##plot ROC curve and overlay the diagonal line for random guessing
+plot(roc_result, main="ROC Curve for Crime Rate Towns")
+lines(x = c(0,1), y = c(0,1), col="red")
+```
+
+This ROC curve suggests that the model is better at predicting whether a town has a high crime rate than randomly guessing.
+
+## Question 2.f
+
+*Find the AUC associated with your ROC curve. What does your AUC tell you?*
+
+```{r 2.a.f, echo=FALSE}
+auc<-performance(rates, measure = "auc")
+```
+
+The AUC for this ROC curve is .978. An area under the curve of 0.5 corresponds to randomly guessing, and higher values mean the model is better than randomly guessing. Therefore, the AUC is telling us the same thing as the ROC curve -- our model is far better at predicting whether a town is high or low crime than randomly guessing.
+
+## Question 2.g 
+
+*Create a confusion matrix using a cutoff of 0.5. What is the false positive rate? What is the false negative rate?*
+```{r 2.a.g, echo=TRUE}
+table(test$crim_factor, preds>0.5)
+#contrasts(test$crim_factor)
+fp.rate<-3/(3+164)  #M odel classified as high crime, but really was low crime
+fp.rate # 0.01796407
+fn.rate<-11/(11+75) # Model classifed as low crime, but really was high crime.
+fn.rate # 0.127907
+```
+
+The false positive rate for this model on the validation set was 1.8%. The false negative rate for the model on the validation set was 12.8%. 
+
+## Question 2.h
+
+*Bearing in mind the governor is most interested in identifying towns with high crime rates, how would you adjust the cutoff value from 0.5? Briefly explain why.*
+
+At the moment, the model currently underestimates high crime towns at a 0.5 threshold. If the mayor wants to prioritize identifying high crime rate towns, we could lower the cutoff to lower the number of false positives, and subsequently reveal lower threshold "high crime" towns.
+
+```{r output, echo=FALSE}
+knitr::purl("hw4Q2_keeley.Rmd")
+```
