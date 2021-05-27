@@ -1,0 +1,65 @@
+---
+title: "Homework 2, Question 1"
+author: "Nicholas Keeley"
+date: "7/25/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(knitr)
+```
+
+## Question 1.a
+
+```{r 1.a, echo=FALSE}
+library(datasets)
+df=swiss
+attach(df)
+# Check to see if x variables are correlated with each other.
+predictors<-cbind(Agriculture, Examination, Education, Catholic, Infant.Mortality)
+# cor(predictors)
+```
+
+*Create a scatterplot matrix and find the correlation between all pairs of variables for this data set. Answer the following questions based on the output:*
+
+```{r 1.a.i, echo = TRUE}
+pairs(df, lower.panel=NULL)
+cor(df)
+```
+
+*i. Which predictors appear to be linearly related to the fertility measure?*
+
+Based on the scatter plots, there is preliminary visual evidence suggesting that  examination scores and education level share linear relationships with the response variable: fertility level. Reviewing the correlation levels for each variable further suggested that catholicism, agricultural occupation, and infant mortality rate were correlated to fertility to a much lesser degree.
+
+*ii. Do you notice if any of the predictors are highly correlated with one another? If so, which ones?*
+
+Based on the scatterplots and a pairwise correlation analysis, having an agricultural occupation appeared negatively correlated with examination scores and education level. Examination scores appeared (unsurprisingling) positively correlated with education level. Reviewing correlation levels for each variable in the pairwise analysis revealed that catholicism was also negatively correlated to examination scores.
+
+## Question 1.b
+
+*(i) What is being tested by the ANOVA F statistic? What is the relevant conclusion in context?*
+
+```{r 1.b.i, echo=FALSE}
+full1<- lm(Fertility~Agriculture + Examination + Education + Catholic + Infant.Mortality)
+ summary(full1)
+```
+This multiple linear regression model's F-statistic, 19.76, is used to test the model's global adequacy. Because the F-statistic is so high, and corresponding P-value is so low, we can reasonably conclude that at least one of the predictors present is useful in predicting fertility, and so we reject the null hypothesis that all of the predictors are not useful in predicting fertility.
+
+*(ii) Look at the numerical values of the estimated slopes as well as their p-values. Do they seem to agree with or contradict with what you had written in your answer to part 1a? Briefly explain what do you think is going on here.*
+
+Most of the predictors' coefficients matched my expectations based off of the scatterplot matrix produced in part 1a. Notable exceptions included agricultural occupation, which the summary results revealed to have a negative coefficient when controlling for all other variables. This contrasts, prima facie, the positive correlation with fertility found in 1a. I believe the mismatch between the scatterplot's visual representation of the estimated coefficient for this predictor and the MLR model's summary results may have been a result of multicollinearity. This is supported by the fact that education, agricultural occupation, and examination scores were highly correlated with each other.
+
+## Question 1.c
+
+*Consider a simpler model, using only the last three variables as predictors: Education, Catholic, and Infant.Mortality. Carry out an appropriate hypothesis test to assess which of these two models should be used. State the null and alternative hypotheses, find the relevant test statistic, p-value, and state a conclusion in context.*
+
+```{r 1.c, echo=FALSE}
+reduced1<-lm(Fertility~Education + Catholic + Infant.Mortality)
+anova(reduced1, full1)
+```
+In order to assess whether removing predictors for agricultural occupation and examination scores will serve as a better model for predicting fertility, I will conduct a partial F-test. The null hypothesis is that both agricultural occupation and examination score have 0 effect on fertility in the presence of the other predictors, and the alternate hypothesis is that at least one of these predictors has a significant effect. The F-statistic was 3.0891, and the p-value was 0.05628. These results suggest that we cannot reject the null hypothesis that neither agricultural occupation nor examination score contributed significantly to the model's ability to predict fertility, in the presence of the other regressors. Therefore, we can reasonably drop these regressors from the full model in favor of a reduced model.
+```{r output, echo=FALSE}
+knitr::purl("hw2Q1_keeley.Rmd")
+
+```
