@@ -1,0 +1,84 @@
+---
+title: "Homework 2, Question 4"
+author: "Nicholas Keeley"
+date: "7/27/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Question 4.a
+
+*Based only on Table 1, briefly comment on the relationship between geographic area and mean teacher pay.*
+
+The summary statistics suggest that mean teacher pay is highest in the West, and lowest in the South (Northern mean teacher pay falls between these two regions' means). 
+
+## Question 4.b
+
+*Based only on Table 1, briefly comment on the relationship between mean public school expenditure (per student) and mean teacher pay.*
+
+The summary statistics suggest that mean teacher pay shares a positive relationship with mean public school expenditure. As public school expenditure goes up, so too does mean teacher pay.
+
+## Question 4.c
+
+*Briefly explain why using a multiple linear regression model with teacher pay as the response variable with geographic area and public school expenditure (per student) can give further insight into the relationship(s) between these variables.*
+
+Viewing summary statistics like the ones above has limited value since the values are static, non-continuous, and merely a snapshot summary of the data. By applying a multiple linear regression, data scientists can view incremental changes in estimated teacher pay as a product of public school expenditure, and to visualize this effect as geographical boundaries are crossed. 
+
+## Question 4.d
+
+*What is the estimate of B2? Give an interpretation of this value.*
+
+The estimate for B2 is 529.4. This coefficient represents the change in mean teacher pay in moving from the reference class (when area is North) to the South class, when controlling for public school expenditure.
+
+## Question 4.e
+
+*Using the Bonferroni procedure, compute the 95% family confidence intervals for
+the difference in mean response for PAY between teachers in the:*
+
+```{r 4.e, echo=TRUE}
+## Find multiplier/critical value at given alpha.
+# g=3 n=51 p = 4. 
+# 0.05 / (2x3=6) = 0.008333333
+qt(1-0.008333333, 47) # 2.482695
+ste_b2 <- sqrt(588126.71689)
+est_b2 <- 5.294e+02
+mult_b2<-2.482695
+est_b2 + (mult_b2*ste_b2) # 2433.364
+est_b2 - (mult_b2*ste_b2) # -1374.564
+
+
+ste_b3 <- sqrt(6.418738e+05)
+est_b3 <- 1.674e+03
+mult_b3<-2.482695
+est_b3 + (mult_b3*ste_b3) # 3663.061
+est_b3 - (mult_b3*ste_b3) # -315.0614
+
+ste_b <- sqrt(6.418738e+05 + 588126.71689 - (2*244238.02959))
+est_b <- est_b2 - est_b3
+mult_b<-2.482695
+est_b + (mult_b*ste_b) # 993.2937
+est_b - (mult_b*ste_b) # -3282.494
+
+```
+
+*i. North region and the South region;*
+
+-1374.564 <= 529.4 <= 2433.364
+
+*ii. North region and the West region;*
+
+-315.0614 <= 1674 <= 3663.061
+
+*iii. South region and the West region.*
+
+-3282.494 <= -1144.6 <= 993.2937
+
+## Question 4.f
+
+*What do your intervals from part 4e indicate about the effect of geographic region on mean annual salary for teachers?*
+
+In order to reject the notion that there is no difference in mean teacher pay across geographic regions (holding public school expenditure constant), we must determine that 0 does not fall within the 95% confidence interval for changes between regions. Due to the size of these intervals, 0 falls within each class-change interval. Therefore, we cannot conclude that moving across geographic region will have a significant effect on mean teacher pay, holding public school expenditure constant.
+

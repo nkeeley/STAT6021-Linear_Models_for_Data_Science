@@ -1,0 +1,95 @@
+---
+title: "Homework 2, Question 2"
+author: "Nicholas Keeley"
+date: "7/26/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Question 2.a
+
+*Produce a scatterplot of bwt against age. Be sure to have separate plots and overlay the regression lines for each of the three racial categories. Based on this plot, explain why there is an interaction effect between the age of the mother and the race of the mother.*
+
+```{r 2.a, echo=FALSE}
+
+# Read in data.
+library(MASS)
+#library(tidyverse)
+data<-birthwt
+attach(data)
+# Check factor change factor from numeric for categorical variable.
+#is.factor(data$race)
+data$race<-factor(race)
+#is.factor(data$race)
+#levels(data$race)
+# contrasts(data$race)
+levels(data$race)<-c("White", "Black", "Other")
+#levels(data$race)
+#contrasts(data$race)
+# race<-relevel(race, ref="Other")
+#is.factor(data$race)
+# Subset data by racial category.
+sub1<-subset(data, race== "White") # White
+sub2<-subset(data, race== "Black") # Black
+sub3<-subset(data, race== "Other") # Other
+
+# Create subset regressions.
+reg1<-lm(sub1$bwt~sub1$age)
+reg2<-lm(sub2$bwt~sub2$age)
+reg3<-lm(sub3$bwt~sub3$age)
+
+```
+
+```{r 2.a.plot, echo=TRUE}
+# Race = white
+plot(sub1$age, sub1$bwt, xlab="Age of Mother (years)", ylab="Bodyweight of Baby (grams)", main="Baby Bodyweight Against Mother's Age, Race = White")
+abline(reg1, lty=2)
+
+# Race = black
+plot(sub2$age, sub2$bwt, pch=2, col="blue", xlab="Age of Mother (years)", ylab="Bodyweight of Baby (grams)", main="Baby Bodyweight Against Mother's Age, Race = Black")
+abline(reg2, col="blue")
+
+# Race = other
+plot(sub3$age, sub3$bwt, pch=12, col="red", xlab="Age of Mother (years)", ylab="Bodyweight of Baby (grams)", main="Baby Bodyweight Against Mother's Age, Race = Other")
+abline(reg3, col="red")
+
+# Main shared plot.
+plot(age, bwt, xlab="Age of Mother (years)", ylab="Bodyweight of Baby (grams)", main="Baby Bodyweight Against Mother's Age, All Races")
+abline(reg1, lty=2)
+abline(reg2, col="blue")
+abline(reg3, col="red")
+points(sub2$age, sub2$bwt, pch=2, col="blue")
+points(sub3$age, sub3$bwt, pch=12, col="red")
+```
+
+When comparing linear models of each racial class' data subset, it is evident that the slopes of each class' respective model differ quite a bit. Coefficients of indicator variables represent the change in mean response between classes, and are usually the same across classes if an indicator variable's effect on the response variable does not depend on another indicator variable. However, classes having different slopes suggests an interaction effect between regressors in the overall model, skewing each racial class' slope relating mother age to baby bodyweight.
+
+## Question 2.b
+
+*Fit a regression equation with interaction between the two predictors. How does this regression equation relate the age of the mother and the weight of the baby at birth for each of the three racial categories?*
+
+```{r 2.b, echo=FALSE}
+reg_int<-lm(bwt~data$age*data$race)
+summary(reg_int)
+
+# Full: Y' = B0 + B1 X1 + B2 I1 + B3 I2 + B4 X1 I1 + B5 X1 I2
+# Full Numeric: Y' = 2583.54 + (21.37) X1 + (1022.79) I1 + (326.05) I2 - (62.54) X1 I1 - (26.03) X1 I2 
+
+# White: Y' = B0 + B1 X1 = 2583.53 + (21.37) X1.
+
+# Black: Y' = B0 + B1 X1 + B2 + B4 X1 = 2583.54 + (21.37) X1 + 1022.79 - 62.54 X1 =
+# 3606.33 -41.17 X1 = B0 + B2 + (B1 + B4) X1
+
+# Other: Y' = B0 + B1 X1 + B3 + B5 X1 = B0 + B3 + (B1 + B5) X1 = 2909.59 - 4.66 X1
+
+```
+
+Overall, the equation relates bodyweight to age by first considering the additive effects of age on bodyweight and each racial class on bodyweight. It also considers an interaction effect between all three racial classes on bodyweight, creating two additional indicator variables; one that combines the effect of regressor X1 (age) on I1 (black), and one that combines the effect of regressor X1 (age) on I2 (other), using race == white as the reference class.
+
+```{r output, echo=FALSE}
+knitr::purl("hw2Q2_keeley.Rmd")
+
+```

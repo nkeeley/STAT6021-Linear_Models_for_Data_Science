@@ -1,0 +1,75 @@
+---
+title: "Homework 2, Question 3"
+author: "Nicholas Keeley"
+date: "7/27/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Question 3.a
+
+*What is the value of the estimated coefficient of the variable Stay? Write a sentence that interprets this value.*
+
+The estimated coefficient for regressor "Stay" is 0.2055252. Interpreted contextually, this value indicates that the percentage of infection increases by a factor of 0.2055252 for each unit increase in average hospital stay, holding all other variables constant.
+
+## Question 3.b
+
+*Derive the test statistic, p-value, and critical value for the variable Age. What null and alternative hypotheses are being evaluated with this test statistic? What conclusion should we make about the variable Age?*
+
+```{r 3.b, echo=TRUE}
+coef_age<-0.0173637
+ste_age<-0.0229966
+# T-statistic: B1' - null/ (Se of B1')
+t_age<-coef_age/ste_age  # 0.7550551
+# Critical value: B1 +/- multiplier * SE
+crit_age<-qt(0.975, 107) # 1.982383
+# Pvalue
+pt(0.7550551, 107) # 0.7740627
+```
+
+The t-statistic for age is 0.7550551, the critical value is 1.982383, and the p-value is 0.7740627. The null hypothesis tested here is that effect of patient age on percentage of infection, keeping all other variables constant, is 0. The alternative hypothesis is two-sided, stating that the effect of age on infection is anything other than 0, in either the positive and negative directions. Because the t-statistic for age is so low in relation to the critical value for alpha==0.5, and its corresponding P-value is so high, we cannot reject the null hypothesis that effect of age on infection percentage is 0. Therefore the age regressor should be removed from the existing model.
+
+## Question 3.c
+
+*A classmate states: “The variable Age is not linearly related to the predicted infection risk.” Do you agree with your classmate’s statement? Briefly explain.*
+
+I don't agree with my classmate based on the information we've obtained so far. Just because a regressor doesn't contribute to a response variable in the presence of other regressors doesn't mean it won't contribute significantly to the model when the other variables are removed (SLR). The t-test in a multiple linear regression solely tests whether or not the reressor in question contributes significantly to the model/response variable while the model's other variables are held constant/are present.
+
+## Question 3.d
+
+*What is the R2 for this model? Write a sentence that interprets this value in context.*
+
+The R2 for this model is 0.4765. The coefficient of determination, calculated by taking 1-(SSres/SSt), is really a percentage of how much variance is accounted for by the predictors that exist in the model (e.g. age, beds, etc.). This R2 implies that a significant amount of variance is attributed to error, suggesting the model probably is not adequate yet.
+
+## Question 3.e
+
+*Carry out the appropriate hypothesis test to decide which of models 1 or 2 should
+be used. Be sure to show all steps in your hypothesis test.* 
+
+```{r 3.e, echo=TRUE}
+
+# Partial F-test statistic: SSR (B2|B1)/r / MSres (B1, B2)
+
+SSr_B2andB1<- 57.305 + 33.397 + 0.136 + 5.101
+SSr_B1<-  57.305 + 33.397
+SSr_B2givenB1<-SSr_B2andB1-SSr_B1
+MSres_B1andB2<-105.441/(113-5)
+f_stat<-(SSr_B2givenB1/2) / (MSres_B1andB2)
+f_stat # 2.68205
+
+# Critical Value
+qf(0.95, 2, 108) # Difference in number of parameters between model 1 and 2.
+# 3.080387
+
+```
+
+My first step would normally be to identify whether the full model possesses any significant variables, utilizing a regular ANOVA F-test of a multiple linear regression. However, this F-test and corresponding value is already displayed in the table. Because the p-value is so low, we reject the null hypothesis that no regressors in the model contribute significantly to the model. 
+
+My second step was to conduct a partial F-test to evaluate whether I can reasonably drop regressors x3 and x4 from the full model. The null hypothesis for this test is that the predictors for x3 and x4 are both 0/have no significant effect on the response variable (percent infection), holding all other variables constant. The alternative hypothesis is that at least on of the predictors is not equal to 0. 
+
+Next, I calculated the f-statistic for a partial f-test utilizing the formula: SSR (B2|B1)/r / MSres (B1, B2). Utilizing the values in the table, this yielded a result of 2.68205. When compared against the critical value at alpha=0.05 at 108 degrees of freedom for the full model, 3.080387, I determined that I cannot reject the null hypothesis. This suggests that I can reasonably drop the subset of regressors x3 and x4 simultaneously from the model, since they don't appear to contribute significantly to the model in the presence of the other regressors in the model.
+
+
