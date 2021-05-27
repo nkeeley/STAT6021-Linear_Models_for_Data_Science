@@ -1,0 +1,103 @@
+---
+title: "Homework 1, Question 2"
+author: "Nicholas Keeley"
+date: "7/21/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Question 2.a
+
+*What is the response variable and predictor for this study? Create a scatterplot of the data, and interpret the scatterplot.*
+
+The predictor variable for this study is the amount of nitrogen fertilizer applied (pounds per acre), and the response variable is the crop yield (bushels per acre). When viewing a scatterplot of the provided data, several assumptions of a simple linear regression appear - at face value - to be missing. The plot  preliminarily casts doubt on if a linear relationship exists between the two variables. A regression line is overlayed on the scatterplot in red to illustrate the curve of the data around it.
+
+```{r 2.a, echo=FALSE}
+## Question 2
+# Reading data.
+# install.packages("faraway")
+library(faraway)
+data2<-cornnit
+attach(data2)
+
+## 2.a
+result2<-lm(yield~nitrogen)
+plot(nitrogen, yield, xlab = "Nitrogen Fertilizer Applied (pounds per acre)", 
+     ylab = "Corn Yield (bushels per acre)", main="Scatterplot of Nitrogen Fertilizer on Crop Yield")
+abline(result2, col="red")
+```
+
+## Question 2.b
+
+*Fit a linear regression without any transformations. Create the corresponding residual plot. Based only on the residual plot, what transformation will you consider first? Be sure to explain your reason.*
+
+``` {r 2.b, echo=FALSE}
+## 2.b
+plot(result2$fitted.values, result2$residuals, main="Residual Plot", xlab = "Fitted Values", ylab = "Residuals")
+abline(h=0, col="red")
+```
+
+The residual plot suggests that the residuals are unevenly distributed across a mean of 0, and curve in a -, +, - tendency across fitted value subsections. Of note, the variance does not appear to be constant. I believe cubing or squaring the estimated response variable will yield more evenly distributed residuals, since transforming an estimated response variable can impact both distribution of residuals around the mean of 0, as well as balance out variance.
+
+## Question 2.c
+
+*Create a Box Cox plot for the profile loglikelihoods. How does this plot aid in your data transformation?*
+
+``` {r 2.c, echo=FALSE}
+library(MASS)
+boxcox(result2, lambda = seq(0, 7, 2))
+```
+
+Box-Cox plots calculate lambda values to which the response variable can be raised, and then calculate the probability of raising the response variable to these lambda values minimizing variance. The Box-Cox plot above suggests that either squaring or cubing the original estimated response variable is an acceptable transformation, well within the confidence interval for a variance-reducing lambda. I will square the response variable first, since this transformation's results are a little more manageable in terms of scale.
+
+## Question 2.d
+
+*Perform the necessary transformation to the data. Re fit the regression with the transformed variable(s) and assess the regression assumptions. You may have to apply transformations a number of times. Be sure to explain the reason behind each of your transformations. Perform the needed transformations until the regression assumptions are met. What is the regression equation that you will use?*
+
+As mentioned under prompt 2.c, I decided to transform the response variable by squaring it in the hopes of balancing the residuals across mean 0 and making variance more constant.
+
+
+```{r 2.d.1, echo=FALSE}
+## 2.d
+
+# Transformation 1: estimated response variable sqaured.
+yield_square<-data2$yield^2
+result2_t1<-lm(yield_square~nitrogen)
+plot(nitrogen, yield_square, xlab = "Nitrogen Fertilizer Applied (pounds per acre)", ylab = "Corn Yield (bushels per acre, squared)", main="Transformation 1: Response Variable Squared\n --- \n Scatterplot of Nitrogen Fertilizer on Crop Yield")
+abline(result2_t1, col="red")
+plot(result2_t1$fitted.values, result2_t1$residuals, main = "Transformation 1: Response Variable Squared\n --- \n Residual Plot", xlab = "Fitted Values", ylab = "Residuals")
+abline(h=0)
+
+boxcox(result2_t1)
+
+```
+
+As seen in the residual plots for transformation 1, transforming the response variable seemed to make variance more constant. Furthermore, a subsequent Box-Cox plot shows that little can be done in terms of adjusting lambda further (this was tested anyway, and yielded unimpressive results). 
+
+However, both the residual plot and the scatterplot suggest that the residuals are still distributed unequally around mean 0. To avoid affecting variance further, I will try transforming the predictor variable next. Because the scatter plot indicates that the data follows a logarithmic pattern, I will try taking the logarithm of the predictor variable as my next transformation. In order to avoid an "undefined" error for nitrogen values equal to 0, I had to add 1 to each of the X (nitrogen) values within the data set. This can be interpreted as the entire plot shifting to the right one value of X.
+
+```{r 2.d.2, echo=FALSE}
+
+# Transformation 2: transforming the predictor variable by taking the log of the predictor variable
+data2$nitrogen<-data2$nitrogen+1 # scaled all values up by 1 to remove zero values
+nitro.log<-log(data2$nitrogen)
+new_data<-cbind(data2,nitro.log)
+result2_t2<-lm(yield_square~new_data$nitro.log)
+plot(new_data$nitro.log, yield_square, xlab = "Nitrogen Fertilizer Applied (pounds per acre, log)", ylab = "Corn Yield (bushels per acre, squared)", main="Transformation 2: Predictor Variable Transformed Logarithmically\n --- \n Scatterplot of Nitrogen Fertilizer on Crop Yield")
+abline(result2_t2, col="red")
+plot(result2_t2$fitted.values, result2_t2$residuals, main = "Transformation 2: Predictor Variable Transformed Logarithmically\n --- \n Residual Plot", xlab = "Fitted Values", ylab = "Residuals")
+abline(h=0, col="red")
+
+acf(result2_t2$residuals, main="Autocorrelation Function Plot")
+
+qqnorm(result2_t2$residuals, main="Normal Probability Plot")
+qqline(result2_t2$residuals, col="red")
+
+summary(result2_t2)
+```
+
+As seen in the residual plot above, transforming the predictor variable resulted in the residuals of the model being more evenly distributed around the mean 0, while leaving variance unaffected. This is reflected in the scatterplot for transformation 2 as well, which displays a much more linear-looking relationship between the variables in question. Finally, I examined both an autocorrelation function (ACF) plot and a normal probability (QQ) plot to assess the remaining assumptions of a linear regression. The ACF plot suggests that the error points captured within the model are uncorrelated. The QQ plot suggested that the residuals aren't distributed *perfectly* normally, but this is the least important assumption of linear regressions anyway, and so it is overlooked in favor of a positive overall assessment. The estimated simple linear regression equation that I will use is Y'^2 = 8319.8 + 2285.8*log(Xi+1). 
+

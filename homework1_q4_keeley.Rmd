@@ -1,0 +1,25 @@
+---
+title: "Homework 1, Question 4"
+author: "Nicholas Keeley"
+date: "7/21/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Question 4.a
+
+*The profile log-likelihoods for the parameter, lambda, of the Box-Cox power transfor- mation, is shown in Figure 2. Your classmate says that you should apply a log transformation to the response variable first. Do you agree with your classmate? Be sure to justify your answer.*
+
+The figures suggest that the model's residuals are unevenly distributed across a mean of 0 and that variance increases as the fitted values of the model increase. Therefore, I think my partner's intuition to transform the response variable first is correct. Furthermore, the Box-Cox plot supports my partner's decision to transform by taking the natural logarithm of the response variable, since the confidence interval for lambda contains 0.
+
+## Question 4.b
+
+*Your classmate is adament on applying the log transformation to the response variable, and fits the regression model. The R output is shown in Figure 3. Write down the estimated regression equation for this model. How do we interpret the regression coefficients Bˆ1 and Bˆ0 in context?*
+
+Estimated regression equation: log(y') = 1.50792 - 0.44993x
+
+Because we took the natural logarithm of the response variable, the rest of the pre-transformation equation became the exponent to which the number "e" was raised. Viewed differently, the response variable (concentration) decreases by a factor of e^B1' (pre-transformation coefficient), or - 0.44993 in concentration, for each increment in the predictor variable X (time). B0' is the estimated concentration when the predictor variable (time) is 0, which is e^B0' (pre-transformation coefficient), or 1.50792 in concentration.
+

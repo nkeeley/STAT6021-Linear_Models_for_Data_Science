@@ -1,0 +1,75 @@
+---
+title: "Homework 1, Question 3"
+author: "Nicholas Keeley"
+date: "7/21/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Question 3.a
+
+*Calculate the value of R2, and interpret this value in context.*
+
+```{r 3.a, echo=TRUE}
+# R^2 = 1- (SSres / SSt)
+answer3.a <- 1 -(17.6/(177.6)) # 0.9009009
+```
+R^2 is called the coefficient of determination and represents the proportion of variance explained by the predictor variable/regressor X. In this case, the proportion of variance explained by the number of transfers during shipment (X) is 0.9009009. This suggests that a large proportion of variance is accounted for by the model, rather than residual error.
+
+## Questoin 3.b
+
+*Carry out a hypothesis test to assess if there is a linear relationship between the variables of interest.*
+
+The null hypothesis for this test is that the number of transfers has no effect on the response variable, H0: B1 == 0. The alternative hypothesis is that the number of transfers does have some sort of effect on the response variable, and therefore will produce a two-sided test, H1: B1 != 0.
+
+Because the sample size is extremely small, I don't know the population variance, and I don't know if the sample follows a normal distribution, I'm going to use a t-test to evaluate the null hypothesis.
+
+```{r 3.b, echo=TRUE}
+# t-statistic = B1' / s.e.
+answer3.b.2 = 4/0.4690 # 8.528785
+qt(0.975, 8) # Critical value: 2.306004
+```
+
+This t-statistic is far larger than the critical value at significance level 95%. Therefore, I am confident about rejecting the null hypothesis that the number of transfers has no effect on the number of broken ampules, and can assess that a linear relationship does exist.
+
+## Question 3.c
+
+*Calculate a 95% confidence interval that estimates the unknown value of the population slope.*
+
+```{r 3.c, echo=TRUE}
+# Confidence interval: estimate +- margin of error
+qt(0.975, 8) # 2.306004
+4-(2.306004*0.4690) # 2.918484 is left limit of confidence interval
+4+(2.306004*0.4690) # 5.081516 is right limit of confidence interval
+```
+
+95% confidence interval of the population slope: 2.918484 <= B1 <= 5.081516
+
+
+## Question 3.d
+
+*A consultant believes the mean number of broken ampules when no transfers are made is different from 9. Conduct an appropriate hypothesis test (state the hypotheses statements, calculate the test statistic, and write the corresponding conclusion in context, in response to his belief).*
+
+Given the prompt, the null hypothesis would be that given a predicted regressor value of 0 (i.e. the intercept) transfers, the mean response is 9, H0: B0 == 9. The alternate hypothesis is two-sided, stating that the mean response at 0 is anything other than an average of 9 broken ampules,H1: B0 != 9. 
+
+The appropriate test statistic for this hypothesis test, given small sample size, unknown population variance, and unknown distribution, is a t-statistic.
+
+
+```{r 3.d, echo=TRUE}
+
+qt(0.975, 8) # critical value/multiplier: 2.306004
+
+# estimate of B0': 10.2000
+
+# s.e. of B0': 0.6633
+
+(10.2-9)/0.6633
+# t-statistic: 1.809136
+
+```
+
+
+Given these results, the calculated t-statistic falls below the critical value. Therefore, we cannot reject the null hypothesis that the mean number of ampules broken, given 0 transfers, is 9.
