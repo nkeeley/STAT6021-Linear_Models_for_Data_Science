@@ -1,4 +1,7 @@
 # STAT6021-Linear_Models_for_Data_Science
+
+Language: R
+
 This repository contains assignments and projects for a course on basic statistics for data science. Course topics included single linear regression, multiple linear regression, logistic regression, transformation, ANOVA F-tests, stepwise/backwards/forwards model creation, and linearity assumptions. 
 
 ## homework1 parts 1-4 (Simple Linear Regressions, Transformations, and Regression Assumptions)
