@@ -13,9 +13,9 @@ This repository contains assignments and projects for a course on basic statisti
 - Summary: conducted outlier analysis using a variety of methods, interpreted a logistic regression's coefficients and performance via ROC/confusion matrices, and evaluated multinomial logistic regression using Wald's test statistic. R.
 - File type: .Rmd
 
-## Project 1_Final (BlueNile Diamonds)
+## full_model_code.R (BlueNile Diamonds)
 - Summary: first course group project. Conducted an experiment to see which variables would best predict diamond price. Compared multiple model approach on subsets of data vs a singular model. R.
-- File type: .pdf
+- File type: .R
 
 ## Stats_proj2_scratch_joe.R (Wine Analysis)
 - Summary: second course group project in which we analyzed which variables best predicted wine quality.
